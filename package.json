@@ -1,14 +1,24 @@
 {
   "name": "@misterpea/schwab-frame",
-  "version": "0.1.0",
-  "description": "Electron and React app frame for @misterpea/schwab-node applications.",
+  "version": "0.0.2",
+  "description": "Electron + React app frame for building desktop tools on top of the Charles Schwab API.",
   "type": "module",
   "main": "dist/main/main.js",
+  "homepage": "https://github.com/MisterPea/schwab-frame#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MisterPea/schwab-frame.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MisterPea/schwab-frame/issues"
+  },
   "files": [
     "dist",
     "src",
     "index.html",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "scripts": {
     "dev": "concurrently -k \"vite --host 127.0.0.1\" \"wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 electron .\"",
@@ -16,7 +26,8 @@
     "start": "npm run build && electron .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit && tsc -p tsconfig.main.json --noEmit"
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.main.json --noEmit",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "schwab",
@@ -27,10 +38,14 @@
   ],
   "author": "Perry Angelora",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=20.6.0"
   },
   "dependencies": {
+    "@fontsource/atkinson-hyperlegible-next": "^5.2.7",
     "@misterpea/schwab-node": "^0.5.1",
     "@vitejs/plugin-react": "^5.1.1",
     "electron": "^39.2.7",
@@ -50,6 +65,7 @@
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
     "jsdom": "^28.1.0",
+    "sass": "^1.99.0",
     "vitest": "^4.1.5",
     "wait-on": "^9.0.3"
   }

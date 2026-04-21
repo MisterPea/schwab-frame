@@ -73,7 +73,7 @@ describe("App frame", () => {
 
     render(<App />);
 
-    expect(await screen.findByText("Hello world")).toBeInTheDocument();
+    expect(await screen.findByText("Hey, Good Lookin'")).toBeInTheDocument();
     expect(screen.getByText("BROKERAGE")).toBeInTheDocument();
     expect(screen.getByText("...1234")).toBeInTheDocument();
     expect(screen.getByText("Enabled")).toBeInTheDocument();
