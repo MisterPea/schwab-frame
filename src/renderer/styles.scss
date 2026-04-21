@@ -1,0 +1,418 @@
+// ============================================================
+// Palette maps
+// ============================================================
+
+$light: (
+  "c-bg":           #f5f2ee,
+  "c-surface":      #fffefb,
+  "c-text":         #1e1a16,
+  "c-text-2":       #6b5f54,
+  "c-border":       #ddd5ca,
+  "c-border-subtle":#e8e2db,
+  "c-brand":        #146a5d,
+  "c-brand-hover":  #0f5a4f,
+  "c-brand-ring":   rgba(20, 106, 93, 0.18),
+  "c-btn-icon-bg":  #fffefb,
+  "c-btn-hover":    #eee9e3,
+  "c-btn-sec-text": #2d251e,
+  "c-danger-text":  #8a2d2d,
+  "c-error-text":   #7c1d1d,
+  "c-error-bg":     #fff0ef,
+  "c-error-border": #f0c7c2,
+  "c-loader-track": #d8d0c8,
+  "c-overlay":      rgba(20, 14, 8, 0.36),
+  "c-pref-label":   #7a6e64,
+  "c-label-text":   #4a3f36,
+  "c-input-bg":     #faf7f3,
+  "c-input-border": #ccc5bc,
+  "c-eyebrow":      #7a6e64,
+);
+
+$dark: (
+  "c-bg":           #141210,
+  "c-surface":      #1e1b18,
+  "c-text":         #ede8e2,
+  "c-text-2":       #9a8e82,
+  "c-border":       #332e28,
+  "c-border-subtle":#2a2520,
+  "c-brand":        #1ea895,
+  "c-brand-hover":  #26b8a4,
+  "c-brand-ring":   rgba(30, 168, 149, 0.24),
+  "c-btn-icon-bg":  #272320,
+  "c-btn-hover":    #302c28,
+  "c-btn-sec-text": #d4cdc5,
+  "c-danger-text":  #f08080,
+  "c-error-text":   #ffb4ae,
+  "c-error-bg":     rgba(124, 29, 29, 0.22),
+  "c-error-border": rgba(240, 100, 90, 0.3),
+  "c-loader-track": #332e28,
+  "c-overlay":      rgba(0, 0, 0, 0.58),
+  "c-pref-label":   #9a8e82,
+  "c-label-text":   #b0a89e,
+  "c-input-bg":     #0f0d0b,
+  "c-input-border": #332e28,
+  "c-eyebrow":      #9a8e82,
+);
+
+// ============================================================
+// Shared tokens
+// ============================================================
+
+$font-sans: "Atkinson Hyperlegible Next", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+$font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+$radius: 4px;
+
+// ============================================================
+// Mixin: emit palette as CSS custom properties
+// ============================================================
+
+@mixin palette($map) {
+  @each $key, $value in $map {
+    --#{$key}: #{$value};
+  }
+}
+
+// ============================================================
+// Themes
+// ============================================================
+
+:root {
+  @include palette($light);
+
+  --font-sans: #{$font-sans};
+  --font-mono: #{$font-mono};
+  --radius:    #{$radius};
+
+  color:       var(--c-text);
+  background:  var(--c-bg);
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+[data-theme="dark"] {
+  @include palette($dark);
+}
+
+// ============================================================
+// Reset & base
+// ============================================================
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-width: 720px;
+  min-height: 100vh;
+}
+
+button,
+input { font: inherit; }
+
+button {
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+}
+
+// ============================================================
+// Layout
+// ============================================================
+
+.app-shell {
+  min-height: 100vh;
+  padding: 28px;
+}
+
+.topbar,
+.settings-header,
+.settings-footer,
+.module-title,
+.topbar-actions,
+.settings-header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.topbar {
+  justify-content: space-between;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--c-border);
+
+  h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    line-height: 1.2;
+    letter-spacing: 0;
+  }
+}
+
+.topbar-actions { gap: 10px; }
+
+.module-bay {
+  display: grid;
+  gap: 18px;
+  padding-top: 24px;
+}
+
+// ============================================================
+// Typography helpers
+// ============================================================
+
+.eyebrow {
+  margin: 0 0 5px;
+  color: var(--c-eyebrow);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+// ============================================================
+// Buttons
+// ============================================================
+
+%btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.icon-button {
+  @extend %btn-base;
+
+  width: 40px;
+  height: 40px;
+  color: var(--c-text);
+  background: var(--c-btn-icon-bg);
+  border-color: var(--c-border);
+
+  &:hover { background: var(--c-btn-hover); }
+}
+
+.primary-button {
+  @extend %btn-base;
+
+  min-height: 40px;
+  padding: 0 14px;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--c-brand);
+
+  &:hover { background: var(--c-brand-hover); }
+}
+
+.secondary-button {
+  @extend %btn-base;
+
+  min-height: 40px;
+  padding: 0 14px;
+  font-weight: 700;
+  color: var(--c-btn-sec-text);
+  background: var(--c-btn-icon-bg);
+  border-color: var(--c-border);
+
+  &:hover { background: var(--c-btn-hover); }
+  &.danger { color: var(--c-danger-text); }
+}
+
+// ============================================================
+// Notices
+// ============================================================
+
+.notice {
+  margin: 18px 0 0;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  font-size: 0.92rem;
+
+  &.error {
+    color: var(--c-error-text);
+    background: var(--c-error-bg);
+    border: 1px solid var(--c-error-border);
+  }
+}
+
+// ============================================================
+// Empty state & loader
+// ============================================================
+
+.empty-state {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  min-height: 440px;
+  text-align: center;
+
+  h2 {
+    margin: 0 0 8px;
+    font-size: 1.6rem;
+  }
+
+  p {
+    max-width: 560px;
+    margin: 0 0 22px;
+    color: var(--c-text-2);
+    line-height: 1.55;
+  }
+}
+
+.loader {
+  width: 34px;
+  height: 34px;
+  margin-bottom: 14px;
+  border: 3px solid var(--c-loader-track);
+  border-top-color: var(--c-brand);
+  border-radius: 50%;
+  animation: spin 900ms linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ============================================================
+// Hello-world module
+// ============================================================
+
+.hello-module {
+  width: 100%;
+  padding: 22px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+}
+
+.module-title {
+  gap: 12px;
+  margin-bottom: 20px;
+  color: var(--c-brand);
+
+  h2 {
+    margin: 0;
+    color: var(--c-text);
+    font-size: 1.45rem;
+    letter-spacing: 0;
+  }
+}
+
+.preference-grid {
+  display: grid;
+  border: 1px solid var(--c-border-subtle);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.preference-row {
+  display: flex;
+  gap: 16px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--c-border-subtle);
+
+  &:last-child { border-bottom: 0; }
+
+  span {
+    color: var(--c-pref-label);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+
+  strong {
+    min-width: 0;
+    color: var(--c-text);
+    overflow-wrap: anywhere;
+    font-size: 0.95rem;
+  }
+}
+
+// ============================================================
+// Settings modal
+// ============================================================
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--c-overlay);
+}
+
+.settings-panel {
+  width: min(560px, 100%);
+  padding: 22px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+}
+
+.settings-header {
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+
+  h2 {
+    margin: 0;
+    letter-spacing: 0;
+  }
+}
+
+.settings-header-actions {
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.settings-form {
+  display: grid;
+  gap: 14px;
+
+  label {
+    display: grid;
+    gap: 7px;
+
+    span {
+      color: var(--c-label-text);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+  }
+
+  input {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    color: var(--c-text);
+    background: var(--c-input-bg);
+    border: 1px solid var(--c-input-border);
+    border-radius: var(--radius);
+    outline: none;
+
+    &:focus {
+      border-color: var(--c-brand);
+      box-shadow: 0 0 0 3px var(--c-brand-ring);
+    }
+  }
+}
+
+.settings-footer {
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+// ============================================================
+// Responsive
+// ============================================================
+
+@media (max-width: 760px) {
+  body { min-width: 0; }
+  .app-shell { padding: 18px; }
+  .preference-row { flex-direction: column; gap: 6px; }
+}

@@ -4,9 +4,13 @@ import type {
   PublicCredentialStatus,
   SchwabCredentials,
 } from "../../main/preload";
+import { ThemeToggle } from "./ThemeToggle";
+import type { Theme } from "../hooks/useTheme";
 
 type Props = {
   status: PublicCredentialStatus | null;
+  theme: Theme;
+  onThemeToggle(): void;
   onClose(): void;
   onSaved(status: PublicCredentialStatus): void;
   onCleared(status: PublicCredentialStatus): void;
@@ -14,6 +18,8 @@ type Props = {
 
 export function CredentialSettings({
   status,
+  theme,
+  onThemeToggle,
   onClose,
   onSaved,
   onCleared,
@@ -73,15 +79,19 @@ export function CredentialSettings({
             <p className="eyebrow">Secure setup</p>
             <h2 id="settings-title">Schwab credentials</h2>
           </div>
-          <button
-            className="icon-button"
-            type="button"
-            onClick={onClose}
-            title="Close settings"
-            aria-label="Close settings"
-          >
-            <X size={18} />
-          </button>
+          <div className="settings-header-actions">
+            {/* Theme toggle — remove this button to disable it from settings */}
+            <ThemeToggle theme={theme} onToggle={onThemeToggle} />
+            <button
+              className="icon-button"
+              type="button"
+              onClick={onClose}
+              title="Close settings"
+              aria-label="Close settings"
+            >
+              <X size={18} />
+            </button>
+          </div>
         </header>
 
         {!status?.encryptionAvailable ? (

@@ -1,6 +1,8 @@
 import { RefreshCcw, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CredentialSettings } from "./components/CredentialSettings";
+import { ThemeToggle } from "./components/ThemeToggle";
+import { useTheme } from "./hooks/useTheme";
 import { AppContent } from "./modules/AppContent";
 import type {
   LoginResult,
@@ -16,6 +18,7 @@ type AppState = {
 };
 
 export function App() {
+  const { theme, toggle: toggleTheme } = useTheme();
   const [state, setState] = useState<AppState>({
     status: null,
     login: null,
@@ -72,6 +75,8 @@ export function App() {
           <h1>Schwab Frame</h1>
         </div>
         <div className="topbar-actions">
+          {/* Theme toggle — remove this button to disable it from the topbar */}
+          <ThemeToggle theme={theme} onToggle={toggleTheme} />
           <button
             className="icon-button"
             type="button"
@@ -131,6 +136,8 @@ export function App() {
       {state.settingsOpen ? (
         <CredentialSettings
           status={state.status}
+          theme={theme}
+          onThemeToggle={toggleTheme}
           onClose={() =>
             setState((current) => ({ ...current, settingsOpen: false }))
           }

@@ -25,7 +25,7 @@ export function HelloWorldModule({ preference }: Props) {
         <CheckCircle2 size={22} />
         <div>
           <p className="eyebrow">OAuth confirmed</p>
-          <h2>Hello world</h2>
+          <h2>Hey, Good Lookin'</h2>
         </div>
       </div>
       <div className="preference-grid">
