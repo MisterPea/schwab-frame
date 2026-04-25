@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [0.0.3] - 2026-04-25
+
+### Added
+- Delegated auth mode — lets an external daemon (`schwab-auth-daemon`) own the OAuth session while this app reads tokens directly from the system keychain. Avoids Schwab's single-active-session constraint when multiple apps share one account.
+- `KeychainTokenStore` — reads, writes, and clears token JSON via `keytar` using a configurable keychain service name (default: `"schwab-node"`).
+- `AuthModeStore` — persists auth mode selection to `schwab-auth-mode.json` in Electron `userData`.
+- `AuthModeConfig` type (`mode: "managed" | "delegated"`, `keychainService: string`) exported from preload.
+- `saveAuthMode` IPC handler + `window.schwabFrame.saveAuthMode()` renderer API.
+- `authMode` and `keychainService` fields on `PublicCredentialStatus`.
+- Delegated-auth toggle and keychain service name input in `CredentialSettings`, with an expandable info panel linking to `schwab-node-persistent-auth` setup docs.
+- `keytar` runtime dependency.
+
+### Changed
+- `SafeStorageCredentialStore.status()` renamed to `credentialStatus()`; return type narrowed to `Omit<PublicCredentialStatus, "authMode" | "keychainService">`. Composed into `getCredentialStatus()` in `schwabService` alongside auth mode.
+- `buildAuth()` renamed to `buildManagedAuth()` to distinguish from delegated path.
+- `login()`, `clearSession()`, and `clearCredentials()` skip OAuth steps when mode is `"delegated"`.
+- Clear credentials button in settings enabled when delegated mode is active (no stored credentials required).
+
+---
+
 ## [0.0.2] - 2026-04-21
 
 ### Added

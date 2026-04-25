@@ -1,6 +1,6 @@
 {
   "name": "@misterpea/schwab-frame",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Electron + React app frame for building desktop tools on top of the Charles Schwab API.",
   "type": "module",
   "main": "dist/main/main.js",
@@ -21,7 +21,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "dev": "concurrently -k \"vite --host 127.0.0.1\" \"wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 electron .\"",
+    "dev": "tsc -p tsconfig.main.json && concurrently -k \"tsc -p tsconfig.main.json --watch --preserveWatchOutput\" \"vite --host 127.0.0.1\" \"wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 electron .\"",
     "build": "tsc -p tsconfig.main.json && vite build",
     "start": "npm run build && electron .",
     "test": "vitest run",
@@ -46,9 +46,10 @@
   },
   "dependencies": {
     "@fontsource/atkinson-hyperlegible-next": "^5.2.7",
-    "@misterpea/schwab-node": "^0.5.1",
+    "@misterpea/schwab-node": "file:../@misterpea__schwab-node/misterpea-schwab-node-0.6.0.tgz",
     "@vitejs/plugin-react": "^5.1.1",
     "electron": "^39.2.7",
+    "keytar": "^7.9.0",
     "lucide-react": "^0.561.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",

@@ -90,3 +90,9 @@ npm test
 ```
 
 The suite is designed to protect the reusable frame while leaving the app surface open. It covers encrypted credential storage, IPC channel names, login and cert ordering, and the default React shell.
+
+---
+
+## Disclaimer
+
+This template builds Electron apps that interact with the Schwab brokerage API. It is not financial advice and carries no liability for financial losses, missed trades, API errors, or authentication interruptions. See [DISCLAIMER.md](DISCLAIMER.md) for full details.

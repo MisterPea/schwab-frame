@@ -5,6 +5,7 @@ import {
   clearSession,
   getCredentialStatus,
   login,
+  saveAuthMode,
   saveCredentials,
 } from "./schwabService.js";
 
@@ -42,6 +43,7 @@ ipcMain.handle("schwab:credentials-status", getCredentialStatus);
 ipcMain.handle("schwab:save-credentials", (_event, credentials) =>
   saveCredentials(credentials),
 );
+ipcMain.handle("schwab:save-auth-mode", (_event, config) => saveAuthMode(config));
 ipcMain.handle("schwab:login", login);
 ipcMain.handle("schwab:clear-session", clearSession);
 ipcMain.handle("schwab:clear-credentials", clearCredentials);

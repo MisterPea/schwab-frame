@@ -1,18 +1,23 @@
 import {
   EncryptedFileTokenStore,
   SchwabAuth,
+  createDelegatedAuth,
   getUserPreference,
   resolveSchwabPaths,
   setDefaultAuth,
+  type TokenSet,
 } from "@misterpea/schwab-node";
 import { setupCerts } from "@misterpea/schwab-node/scripts/setup-certs";
 import { access } from "node:fs/promises";
 import { join } from "node:path";
 import {
+  AuthModeStore,
+  KeychainTokenStore,
   SafeStorageCredentialStore,
   createSafeStorageTokenCipher,
   ensureSchwabRuntimeRoot,
   getSchwabRuntimePaths,
+  type AuthModeConfig,
   type PublicCredentialStatus,
   type SchwabCredentials,
 } from "./schwabStorage.js";
@@ -36,8 +41,11 @@ export type LoginResult = {
   preference: SchwabPreferenceSummary;
 };
 
+type AnyAuth = { getAuth(): Promise<TokenSet>; clearAuth(): Promise<void> };
+
 const credentialStore = new SafeStorageCredentialStore();
-let auth: ElectronSchwabAuth | null = null;
+const authModeStore = new AuthModeStore();
+let auth: AnyAuth | null = null;
 
 export function __resetSchwabServiceForTests(): void {
   auth = null;
@@ -97,7 +105,7 @@ async function ensureCallbackCerts(credentials: SchwabCredentials): Promise<void
   });
 }
 
-function buildAuth(credentials: SchwabCredentials): ElectronSchwabAuth {
+function buildManagedAuth(credentials: SchwabCredentials): ElectronSchwabAuth {
   const runtime = getSchwabRuntimePaths();
   const paths = resolveSchwabPaths({
     cwd: runtime.baseDir,
@@ -121,16 +129,24 @@ function buildAuth(credentials: SchwabCredentials): ElectronSchwabAuth {
   return nextAuth;
 }
 
-async function getConfiguredAuth(): Promise<ElectronSchwabAuth> {
+async function getConfiguredAuth(): Promise<AnyAuth> {
   if (auth) return auth;
+
+  const modeConfig = await authModeStore.load();
+
+  if (modeConfig.mode === "delegated") {
+    const keychainStore = new KeychainTokenStore(modeConfig.keychainService);
+    const delegatedAuth = createDelegatedAuth(keychainStore);
+    setDefaultAuth(delegatedAuth);
+    return (auth = delegatedAuth);
+  }
 
   const credentials = await credentialStore.load();
   if (!credentials) {
     throw new Error("Save Schwab credentials before logging in.");
   }
 
-  auth = buildAuth(credentials);
-  return auth;
+  return (auth = buildManagedAuth(credentials));
 }
 
 function summarizePreference(
@@ -142,26 +158,28 @@ function summarizePreference(
 
   return {
     account: account
-      ? {
-          type: account.type,
-          displayAcctId: account.displayAcctId,
-        }
+      ? { type: account.type, displayAcctId: account.displayAcctId }
       : undefined,
     offers: offers
-      ? {
-          level2Permissions: offers.level2Permissions,
-        }
+      ? { level2Permissions: offers.level2Permissions }
       : undefined,
     streamerInfo: streamerInfo
-      ? {
-          streamerSocketUrl: streamerInfo.streamerSocketUrl,
-        }
+      ? { streamerSocketUrl: streamerInfo.streamerSocketUrl }
       : undefined,
   };
 }
 
 export async function getCredentialStatus(): Promise<PublicCredentialStatus> {
-  return credentialStore.status();
+  const [credStatus, modeConfig] = await Promise.all([
+    credentialStore.credentialStatus(),
+    authModeStore.load(),
+  ]);
+  return {
+    ...credStatus,
+    hasCredentials: modeConfig.mode === "delegated" ? true : credStatus.hasCredentials,
+    authMode: modeConfig.mode,
+    keychainService: modeConfig.keychainService,
+  };
 }
 
 export async function saveCredentials(
@@ -178,18 +196,27 @@ export async function saveCredentials(
   await credentialStore.save(normalized);
   await ensureCallbackCerts(normalized);
 
-  auth = buildAuth(normalized);
-  return credentialStore.status();
+  auth = buildManagedAuth(normalized);
+  return getCredentialStatus();
+}
+
+export async function saveAuthMode(config: AuthModeConfig): Promise<PublicCredentialStatus> {
+  await authModeStore.save(config);
+  auth = null;
+  return getCredentialStatus();
 }
 
 export async function login(): Promise<LoginResult> {
-  const credentials = await credentialStore.load();
-  if (!credentials) {
-    throw new Error("Save Schwab credentials before logging in.");
-  }
+  const modeConfig = await authModeStore.load();
 
-  validateCredentials(credentials);
-  await ensureCallbackCerts(credentials);
+  if (modeConfig.mode === "managed") {
+    const credentials = await credentialStore.load();
+    if (!credentials) {
+      throw new Error("Save Schwab credentials before logging in.");
+    }
+    validateCredentials(credentials);
+    await ensureCallbackCerts(credentials);
+  }
 
   const configuredAuth = await getConfiguredAuth();
   const token = await configuredAuth.getAuth();
@@ -202,16 +229,22 @@ export async function login(): Promise<LoginResult> {
 }
 
 export async function clearSession(): Promise<PublicCredentialStatus> {
-  const configuredAuth = await getConfiguredAuth().catch(() => null);
-  await configuredAuth?.clearAuth();
+  const modeConfig = await authModeStore.load();
+  if (modeConfig.mode === "managed") {
+    const configuredAuth = await getConfiguredAuth().catch(() => null);
+    await configuredAuth?.clearAuth();
+  }
   auth = null;
-  return credentialStore.status();
+  return getCredentialStatus();
 }
 
 export async function clearCredentials(): Promise<PublicCredentialStatus> {
-  const configuredAuth = await getConfiguredAuth().catch(() => null);
-  await configuredAuth?.clearAuth();
+  const modeConfig = await authModeStore.load();
+  if (modeConfig.mode === "managed") {
+    const configuredAuth = await getConfiguredAuth().catch(() => null);
+    await configuredAuth?.clearAuth();
+  }
   await credentialStore.clear();
   auth = null;
-  return credentialStore.status();
+  return getCredentialStatus();
 }

@@ -1,7 +1,8 @@
 import { app, safeStorage } from "electron";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import type { TokenCipher } from "@misterpea/schwab-node";
+import keytar from "keytar";
+import type { TokenCipher, TokenSet, TokenStore } from "@misterpea/schwab-node";
 
 export type SchwabCredentials = {
   clientId: string;
@@ -9,14 +10,26 @@ export type SchwabCredentials = {
   redirectUri: string;
 };
 
+export type AuthMode = "managed" | "delegated";
+
+export type AuthModeConfig = {
+  mode: AuthMode;
+  keychainService: string;
+};
+
+export const DEFAULT_KEYCHAIN_SERVICE = "schwab-node";
+
 export type PublicCredentialStatus = {
   hasCredentials: boolean;
   encryptionAvailable: boolean;
   clientId?: string;
   redirectUri?: string;
+  authMode: AuthMode;
+  keychainService: string;
 };
 
 const CREDENTIAL_FILE = "schwab-credentials.enc";
+const AUTH_MODE_FILE = "schwab-auth-mode.json";
 
 function userDataPath(...parts: string[]): string {
   return join(app.getPath("userData"), ...parts);
@@ -62,7 +75,7 @@ export class SafeStorageCredentialStore {
     await rm(this.filePath, { force: true });
   }
 
-  async status(): Promise<PublicCredentialStatus> {
+  async credentialStatus(): Promise<Omit<PublicCredentialStatus, "authMode" | "keychainService">> {
     const credentials = await this.load();
     return {
       hasCredentials: credentials !== null,
@@ -70,6 +83,48 @@ export class SafeStorageCredentialStore {
       clientId: credentials?.clientId,
       redirectUri: credentials?.redirectUri,
     };
+  }
+}
+
+export class AuthModeStore {
+  private readonly filePath = userDataPath(AUTH_MODE_FILE);
+
+  async load(): Promise<AuthModeConfig> {
+    try {
+      const raw = await readFile(this.filePath, "utf8");
+      return JSON.parse(raw) as AuthModeConfig;
+    } catch {
+      return { mode: "managed", keychainService: DEFAULT_KEYCHAIN_SERVICE };
+    }
+  }
+
+  async save(config: AuthModeConfig): Promise<void> {
+    await writePrivateFile(this.filePath, JSON.stringify(config));
+  }
+}
+
+export class KeychainTokenStore implements TokenStore {
+  constructor(
+    private readonly service: string,
+    private readonly account = "tokens",
+  ) {}
+
+  async load(): Promise<TokenSet | null> {
+    const raw = await keytar.getPassword(this.service, this.account);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as TokenSet;
+    } catch {
+      return null;
+    }
+  }
+
+  async save(tokens: TokenSet): Promise<void> {
+    await keytar.setPassword(this.service, this.account, JSON.stringify(tokens));
+  }
+
+  async clear(): Promise<void> {
+    await keytar.deletePassword(this.service, this.account);
   }
 }
 

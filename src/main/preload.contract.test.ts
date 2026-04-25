@@ -34,11 +34,13 @@ describe("preload API contract", () => {
       "clearSession",
       "credentialsStatus",
       "login",
+      "saveAuthMode",
       "saveCredentials",
     ]);
 
     await exposed.api.credentialsStatus();
     await exposed.api.saveCredentials({ clientId: "id" });
+    await exposed.api.saveAuthMode({ mode: "delegated", keychainService: "schwab-node" });
     await exposed.api.login();
     await exposed.api.clearSession();
     await exposed.api.clearCredentials();
@@ -54,14 +56,19 @@ describe("preload API contract", () => {
     );
     expect(electronMock.ipcRenderer.invoke).toHaveBeenNthCalledWith(
       3,
-      "schwab:login",
+      "schwab:save-auth-mode",
+      { mode: "delegated", keychainService: "schwab-node" },
     );
     expect(electronMock.ipcRenderer.invoke).toHaveBeenNthCalledWith(
       4,
-      "schwab:clear-session",
+      "schwab:login",
     );
     expect(electronMock.ipcRenderer.invoke).toHaveBeenNthCalledWith(
       5,
+      "schwab:clear-session",
+    );
+    expect(electronMock.ipcRenderer.invoke).toHaveBeenNthCalledWith(
+      6,
       "schwab:clear-credentials",
     );
   });

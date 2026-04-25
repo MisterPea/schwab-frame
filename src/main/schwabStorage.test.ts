@@ -64,7 +64,7 @@ describe("SafeStorageCredentialStore", () => {
       clientSecret: "super-secret",
       redirectUri: "https://127.0.0.1:8443",
     });
-    await expect(store.status()).resolves.toEqual({
+    await expect(store.credentialStatus()).resolves.toEqual({
       hasCredentials: true,
       encryptionAvailable: true,
       clientId: "client-id",

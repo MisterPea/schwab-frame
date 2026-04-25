@@ -83,9 +83,21 @@ vi.mock("electron", () => ({
   safeStorage: electronMock.safeStorage,
 }));
 
+vi.mock("keytar", () => ({
+  default: {
+    getPassword: vi.fn(async () => null),
+    setPassword: vi.fn(async () => undefined),
+    deletePassword: vi.fn(async () => undefined),
+  },
+}));
+
 vi.mock("@misterpea/schwab-node", () => ({
   EncryptedFileTokenStore: schwabMock.FakeEncryptedFileTokenStore,
   SchwabAuth: class SchwabAuth {},
+  createDelegatedAuth: vi.fn(() => ({
+    getAuth: vi.fn(async () => ({ token_type: "Bearer" })),
+    clearAuth: vi.fn(async () => undefined),
+  })),
   getUserPreference: schwabMock.getUserPreference,
   resolveSchwabPaths: schwabMock.resolveSchwabPaths,
   setDefaultAuth: schwabMock.setDefaultAuth,
@@ -163,6 +175,20 @@ describe("schwabService contracts", () => {
       clientId: "updated-client-id",
       clientSecret: "first-secret",
       redirectUri: "https://127.0.0.1:8443",
+    });
+  });
+
+  it("reports hasCredentials true in delegated mode even without managed credentials", async () => {
+    const { saveAuthMode, getCredentialStatus } = await import("./schwabService.js");
+
+    const status = await saveAuthMode({ mode: "delegated", keychainService: "schwab-node" });
+
+    expect(status.hasCredentials).toBe(true);
+    expect(status.authMode).toBe("delegated");
+
+    await expect(getCredentialStatus()).resolves.toMatchObject({
+      hasCredentials: true,
+      authMode: "delegated",
     });
   });
 

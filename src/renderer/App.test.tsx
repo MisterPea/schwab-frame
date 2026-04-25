@@ -4,20 +4,25 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "./App";
 import type { SchwabFrameApi } from "../main/preload";
 
+const defaultStatus = {
+  hasCredentials: false,
+  encryptionAvailable: true,
+  authMode: "managed" as const,
+  keychainService: "schwab-node",
+};
+
 function installSchwabFrameApi(
   overrides: Partial<SchwabFrameApi> = {},
 ): SchwabFrameApi {
   const api: SchwabFrameApi = {
-    credentialsStatus: vi.fn(async () => ({
-      hasCredentials: false,
-      encryptionAvailable: true,
-    })),
+    credentialsStatus: vi.fn(async () => ({ ...defaultStatus })),
     saveCredentials: vi.fn(async () => ({
+      ...defaultStatus,
       hasCredentials: true,
-      encryptionAvailable: true,
       clientId: "client-id",
       redirectUri: "https://127.0.0.1:8443",
     })),
+    saveAuthMode: vi.fn(async () => ({ ...defaultStatus })),
     login: vi.fn(async () => ({
       tokenType: "Bearer",
       preference: {
@@ -26,14 +31,8 @@ function installSchwabFrameApi(
         streamerInfo: { streamerSocketUrl: "wss://streamer.example.test/ws" },
       },
     })),
-    clearSession: vi.fn(async () => ({
-      hasCredentials: true,
-      encryptionAvailable: true,
-    })),
-    clearCredentials: vi.fn(async () => ({
-      hasCredentials: false,
-      encryptionAvailable: true,
-    })),
+    clearSession: vi.fn(async () => ({ ...defaultStatus, hasCredentials: true })),
+    clearCredentials: vi.fn(async () => ({ ...defaultStatus })),
     ...overrides,
   };
 
@@ -64,8 +63,8 @@ describe("App frame", () => {
   it("logs in and renders the default hello-world preference module", async () => {
     installSchwabFrameApi({
       credentialsStatus: vi.fn(async () => ({
+        ...defaultStatus,
         hasCredentials: true,
-        encryptionAvailable: true,
         clientId: "client-id",
         redirectUri: "https://127.0.0.1:8443",
       })),
@@ -102,8 +101,8 @@ describe("App frame", () => {
   it("shows login failures without exposing implementation details in React", async () => {
     installSchwabFrameApi({
       credentialsStatus: vi.fn(async () => ({
+        ...defaultStatus,
         hasCredentials: true,
-        encryptionAvailable: true,
       })),
       login: vi.fn(async () => {
         throw new Error("OAuth failed");

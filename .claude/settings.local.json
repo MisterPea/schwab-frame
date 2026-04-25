@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/mothership/.nvm/versions/node/v22.12.0/lib/node_modules/@misterpea/schwab-auth-daemon/node_modules/@misterpea/schwab-node/dist/oauth/**)",
+      "Read(//Users/mothership/.nvm/versions/node/v22.12.0/lib/node_modules/@misterpea/schwab-node/dist/oauth/**)",
+      "Read(//Users/mothership/Documents/_Development/**)"
+    ]
+  }
+}
