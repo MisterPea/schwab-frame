@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [0.0.4] - 2026-07-08
+
+### Security
+- Ran `npm audit fix` — resolved all 11 reported vulnerabilities (2 low, 2 moderate, 5 high, 2 critical) in transitive dependencies (`axios`, `undici`, `vite`, `ws`, `esbuild`, `form-data`, `joi`, `qs`, `shell-quote` via `concurrently`, `@babel/core`). No direct dependency version changes required.
+
+---
+
 ## [0.0.3] - 2026-04-25
 
 ### Added
