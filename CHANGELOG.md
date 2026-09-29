@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [0.0.5] - 2026-09-28
+
+### Security
+- Upgraded `electron` from `^39.2.7` to `^44.4.5` — resolves 2 high-severity advisories in `extract-zip` (GHSA-jmr9-qjv8-65gv, GHSA-7pqw-9j4j-h8q3), which has no patched release. Electron >=40.10.3 replaces it with `@electron-internal/extract-zip`; the 39.x line is out of support.
+
+### Changed
+- Electron 44 downloads its binary lazily on first `electron .` run rather than at install.
+
+---
+
 ## [0.0.4] - 2026-07-08
 
 ### Security
