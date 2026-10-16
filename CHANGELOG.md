@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [0.0.6] - 2026-10-16
+
+### Security
+- Resolved 5 vulnerabilities (2 high, 3 critical) via `npm audit fix`, lockfile only:
+  - `axios` 1.18.1 → 1.20.0 (high — 12 advisories incl. prototype pollution, ReDoS, SSRF, header injection)
+  - `proxy-addr` 2.0.7 → 2.0.8 (critical — GHSA-jqcg-44mw-7w3h)
+  - `shell-quote` 1.9.0 → 1.12.0 (critical — GHSA-pqg4-j6r4-53mv), pulled in by `concurrently` 9.2.4 → 9.2.5
+  - `source-map-js` 1.2.1 → 1.2.2 (high — GHSA-68fv-2mgg-jv7q)
+
+---
+
 ## [0.0.5] - 2026-09-28
 
 ### Security

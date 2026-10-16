@@ -1,6 +1,6 @@
 {
   "name": "@misterpea/schwab-frame",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Electron + React app frame for building desktop tools on top of the Charles Schwab API.",
   "type": "module",
   "main": "dist/main/main.js",
